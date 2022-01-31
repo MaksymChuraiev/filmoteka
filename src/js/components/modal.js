@@ -8,32 +8,48 @@
 // function toggleModal() {
 //     refs.modal.classList.toggle('is-hidden');
 // };
-export {modalOpenOnClick}
+export { modalOpenOnClick }
 
+import {getGalleryTargetMovieFromLS} from './fn_searchGalleryTargetInLS'
+
+const refs = {
+    gallery: document.querySelector('.gallery-list'),
+}
+console.log(refs.gallery)
+console.dir(refs.gallery)
 function modalOpenOnClick() {
     const clickedMovieCard = document.querySelectorAll(".gallery-list__item");
     const modalCloseBtn = document.querySelector('[data-modal-close]');
-  
+    const modal = document.querySelector('[data-modal]');
+    // const galeryofFilms = [...refs.gallery.children]
+    // const arrayofFilms = JSON.parse(localStorage.getItem('MoviesOnPage'))
+    // console.log(arrayofFilms)
+    
     clickedMovieCard.forEach(button => button.addEventListener("click", onClickMovieCard));
-    modalCloseBtn.addEventListener('click', onClickCloseModal)
 
     function onClickMovieCard(event) {
-    event.preventDefault()
+        getGalleryTargetMovieFromLS()
+
+    // event.preventDefault()
     modalCloseBtn.addEventListener('click', onClickCloseModal)
-    console.log(event.currentTarget);
+        console.log(event.currentTarget);
+        console.dir(event.currentTarget);
+        
     
-    const modal = document.querySelector('[data-modal]');
+    // const modal = document.querySelector('[data-modal]');
     modal.classList.toggle('is-hidden');
   
     }   
     function onClickCloseModal(event) {
-    event.preventDefault()
+    // event.preventDefault()
 
     console.log(event.currentTarget);
     
-    const modal = document.querySelector('[data-modal]');
+    
         modal.classList.toggle('is-hidden');
         modalCloseBtn.removeEventListener('click', onClickCloseModal)
   
     }
 }
+
+
