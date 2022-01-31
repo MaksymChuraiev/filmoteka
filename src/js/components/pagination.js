@@ -1,8 +1,11 @@
-export { markupPages, addTestPaginationListeners, togglePaginationBtn, hideFirstPageBtn, hideLastPageBtn, onClickPrevPageBtn, onClickNextPageBtn, onClickNumberPageBtn, onClickLessPageBtn, onClickMorePageBtn,togglePainationAllButtons }
 
-import { currentFetch, ress, checkFetchLink, onLoadTranding, galleryArrayMarkup, genresMarkup, toggleGenres, removeAllChekedGenres } from './gallery'
+export { markupPages, togglePainationAllButtons, addTestPaginationListeners, togglePaginationBtn, hideFirstPageBtn, hideLastPageBtn, onClickPrevPageBtn, onClickNextPageBtn, onClickNumberPageBtn, onClickLessPageBtn, onClickMorePageBtn, }
 
-import { fetchPhoto, fetchGenres, discoverGenres, fetchTrandingMovie } from './fetchApi'
+import {modalOpenOnClick,addListenersOnEachGalleryCard} from './modal'
+
+import { currentFetch, ress, checkFetchLink, onLoadTranding, galleryArrayMarkup, genresMarkup, toggleGenres, removeAllChekedGenres, ratingAddIshidden } from './gallery'
+
+import { fetchPhoto, discoverYear, discoverGenres, fetchTrandingMovie } from './fetchApi'
 
 import { options } from './fetchApi';
 
@@ -15,10 +18,8 @@ const refs = {
     nextPage: document.querySelector("[data-page='next']"),
     lessPage: document.querySelector("[data-page='less']"),
     morePage: document.querySelector("[data-page='more']"),
-  pages: document.querySelector('.pages'),
-  paginationList:document.querySelector('.pagination'),
-    
-    
+    pages: document.querySelector('.pages'),
+    paginationList:document.querySelector('.pagination'), 
 }
 console.log(refs);
 console.log(options);
@@ -29,19 +30,20 @@ function markupPages(array) {
               <li class="page_item disabled"><a href="#" class="page_link pagination_btn btn_active" data-page=${array.page}>${array.page}</a></li>
               <li class="page_item"><a href="#" class="page_link pagination_btn" data-page=${array.page + 1}>${array.page + 1}</a>
               </li>`
-  
+ 
   refs.pages.insertAdjacentHTML('beforeend', pagesBtnMarkup)
+  
 }
 
-function togglePainationAllButtons(array) {
+
+async function togglePainationAllButtons(array) {
   refs.paginationList.classList.remove('visually-hidden')
   if (array.total_pages <= 1) {
     refs.paginationList.classList.add('visually-hidden')
-    console.log(array.results.length)
+    // console.log(array.results.length)
     console.log(refs.paginationList)
   }
 }
-
 
 function addTestPaginationListeners() {
   refs.prevPage.addEventListener('click', onClickPrevPageBtn)
@@ -49,6 +51,7 @@ function addTestPaginationListeners() {
   refs.morePage.addEventListener('click', onClickMorePageBtn)
   refs.lessPage.addEventListener('click', onClickLessPageBtn)
   refs.pages.addEventListener('click', onClickNumberPageBtn)
+  
 }
 
 function togglePaginationBtn() {
@@ -109,11 +112,20 @@ async function onClickNumberPageBtn(e) {
     response = await discoverGenres()
     console.log('genres',response)
   }
+  if (currentFetch === 'year') {
+    response = await discoverYear()
+    console.log('genres',response)
+  }  
+
+  localStorage.setItem('MoviesOnPage', JSON.stringify(response));
   galleryArrayMarkup(response)
   markupPages(response)
+  ratingAddIshidden()
+  modalOpenOnClick()
   hideFirstPageBtn()
   hideLastPageBtn()
   togglePaginationBtn()
+  
   
   
 }
@@ -141,8 +153,16 @@ async function onClickPrevPageBtn(e) {
     response = await discoverGenres()
     console.log('genres',response)
   }
+  if (currentFetch === 'year') {
+    response = await discoverYear()
+    console.log('genres',response)
+    }  
+    
+    localStorage.setItem('MoviesOnPage', JSON.stringify(response));
     galleryArrayMarkup(response)
     markupPages(response)
+    ratingAddIshidden()
+    modalOpenOnClick()
     hideFirstPageBtn()
     hideLastPageBtn()
     togglePaginationBtn()    
@@ -174,9 +194,17 @@ let response
   if (currentFetch === 'genres') {
     response = await discoverGenres()
     console.log('genres',response)
-  }
+      }
+  if (currentFetch === 'year') {
+    response = await discoverYear()
+    console.log('genres',response)
+      }
+      
+      localStorage.setItem('MoviesOnPage', JSON.stringify(response));
       galleryArrayMarkup(response)
       markupPages(response)
+      ratingAddIshidden()
+      modalOpenOnClick()
       console.dir(refs.pages.lastElementChild.firstElementChild.dataset.page,'dataset')
       hideFirstPageBtn()
       hideLastPageBtn()
@@ -214,8 +242,16 @@ let response
     response = await discoverGenres()
     console.log('genres',response)
   }
+  if (currentFetch === 'year') {
+    response = await discoverYear()
+    console.log('genres',response)
+    }
+    
+    localStorage.setItem('MoviesOnPage', JSON.stringify(response));
     galleryArrayMarkup(response)
     markupPages(response)
+    ratingAddIshidden()
+    modalOpenOnClick()
     hideFirstPageBtn()
     hideLastPageBtn()
     togglePaginationBtn()
@@ -248,8 +284,16 @@ let response
     response = await discoverGenres()
     console.log('genres',response)
   }
+  if (currentFetch === 'year') {
+    response = await discoverYear()
+    console.log('genres',response)
+    }
+    
+    localStorage.setItem('MoviesOnPage', JSON.stringify(response));
     galleryArrayMarkup(response)
     markupPages(response)
+    ratingAddIshidden()
+    modalOpenOnClick()
     hideFirstPageBtn()
     hideLastPageBtn()
     togglePaginationBtn()

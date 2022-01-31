@@ -1,6 +1,13 @@
-import { fetchPhoto, fetchGenres, discoverGenres, fetchTrandingMovie } from './fetchApi';
+import {
+  fetchPhoto,
+  fetchGenres,
+  discoverGenres,
+  fetchTrandingMovie,
+} from './fetchApi';
+
 import {
   markupPages,
+  togglePainationAllButtons,
   addTestPaginationListeners,
   togglePaginationBtn,
   hideFirstPageBtn,
@@ -10,11 +17,16 @@ import {
   onClickNextPageBtn,
   onClickLessPageBtn,
   onClickMorePageBtn,
-  togglePainationAllButtons,
 } from './pagination';
+
+import { genresMarkup,galleryGenresMarkup,toggleGenres,toggleYear,removeAllChekedGenres,toggleTrands } from './genres'
+
+import {modalOpenOnClick} from './modal'
 
 import { options } from './fetchApi';
 import galleryTpl from '../../template/gallery.hbs';
+import { cloneDeep } from 'lodash';
+import teaser from './teaser';
 
 export {
   currentFetch,
@@ -25,32 +37,46 @@ export {
   genresMarkup,
   toggleGenres,
   removeAllChekedGenres,
+  ratingAddIshidden,
+  
 };
+const throttle = require('lodash.throttle');
 
 const refs = {
   form: document.querySelector('#search-form'),
   gallery: document.querySelector('.gallery-list'),
   btnLoadMore: document.querySelector('.load-more'),
   genres: document.querySelector('.genres'),
+  topTrands: document.querySelector('.top-trands'),
   prevPage: document.querySelector("[data-page='prev']"),
   nextPage: document.querySelector("[data-page='next']"),
   lessPage: document.querySelector("[data-page='less']"),
   morePage: document.querySelector("[data-page='more']"),
   pages: document.querySelector('.pages'),
-  textError: document.querySelector('.js-header__text-error'),
   paginationList: document.querySelector('.pagination'),
+  clickedMovieCard: document.querySelectorAll(".gallery-list__item"),
+  modalCloseBtn: document.querySelector('[data-modal-close]'),
+  modal: document.querySelector('[data-modal]'),
+  textError: document.querySelector('.js-header__text-error'),
 };
 let currentFetch = 'tranding';
-let currentPage = 1;
-console.log(refs.gallery);
+
 genresMarkup();
 const formInput = refs.form.elements.query;
-console.log(formInput);
-refs.form.addEventListener('submit', checkFetchLink);
-// refs.genres.addEventListener('click', throttle(checkFetchLink, 200))
 
-let ress = '';
+refs.form.addEventListener('submit', checkFetchLink);
+refs.genres.addEventListener('click', throttle(checkFetchLink, 200));
+refs.topTrands.addEventListener('click', throttle(checkFetchLink, 200));
+
+let ress = {
+  page: 0,
+  results: [],
+  total_pages: 0,
+  total_results: 0,
+};
+
 onLoadTranding();
+
 addTestPaginationListeners();
 
 async function checkFetchLink(e) {
@@ -63,36 +89,31 @@ async function checkFetchLink(e) {
   options.pageNumber = 1;
   options.query = formInput.value;
   try {
+    toggleTrands(e.target.id);
     // ==== chech input ====
     if (e.currentTarget === refs.form) {
-      if (options.query.trim() === '') {
-        //  return Notify.failure("Please enter film name")
-        refs.textError.classList.remove('is-hidden');
-      }
-
-      options.query = formInput.value;
-      currentFetch = 'search';
-      ress = await fetchPhoto();
-      console.log('search', ress);
-      console.log('currentFetch ', currentFetch);
-      console.log('oq ', options.query);
       removeAllChekedGenres();
+      await onClickSearchSubmit(e);
       togglePainationAllButtons(ress);
     }
     // ===== chek genres =====
+    if (e.currentTarget === refs.genres) {
+      await onClickGenres(e)
+    }    
+    //==============topTrands =================
+    if (e.target.id === 'topDay') {
+      removeAllChekedGenres();
+      toggleTrands(e.target.id);
+      await onClickTopDayTrands(e)
+    }
 
-    //   if (e.currentTarget === refs.genres) {
-    //       currentFetch = 'genres'
-    //       formInput.value = ''
-    //       e.target.classList.toggle('genresIsActive')
-    //       options.pageNumber = 1
-    //     toggleGenres(e.target.id)
-
-    //       ress = await discoverGenres()
-    //       console.log('genres', ress)
-    //       console.log('currentFetch ',currentFetch)
-    //     }
+    if (e.target.id === 'topWeek') {
+      removeAllChekedGenres();
+      await onClickTopWeekTrands(e)
+    }
+  
     options.maxPage = ress.total_pages;
+    localStorage.setItem('MoviesOnPage', JSON.stringify(ress));
     galleryArrayMarkup(ress);
     markupPages(ress);
     ratingAddIshidden();
@@ -100,46 +121,112 @@ async function checkFetchLink(e) {
     hideLastPageBtn();
     togglePaginationBtn();
     togglePainationAllButtons(ress);
-  } catch (e) {}
+    
+    modalOpenOnClick()
+  } catch (e) {
+    console.log(e);
+  }
 }
+
+async function onClickSearchSubmit(e) { 
+    if (options.query.trim() === '') {
+        refs.textError.classList.remove('is-hidden');
+        refs.paginationList.classList.add('visually-hidden');
+        return;
+      }
+
+      options.genresId = [];
+      options.query = formInput.value;
+      currentFetch = 'search';
+      ress = await fetchPhoto();
+      console.log('search', ress);
+      console.log('currentFetch ', currentFetch);
+      console.log('query ', options.query);
+  }
+async function onClickGenres(e) {
+  
+      currentFetch = 'genres';
+      formInput.value = '';
+      e.target.classList.toggle('btn_active');
+      options.pageNumber = 1;
+      toggleGenres(e.target.id);
+      if (e.target.dataset.year) {
+        toggleYear(e.target.dataset.year);
+      }
+        ress = await discoverGenres();
+        console.log('genres', ress);
+        console.log('currentFetch ', currentFetch);
+        console.dir(e.target.dataset.year);
+        console.log(options.genresId);
+        console.log(options.yearId);
+      }
+
+async function onClickTopDayTrands(e) {
+      e.target.classList.toggle('btn_active');
+      // toggleTrands(e.target.id);
+      options.trand = 'day';
+      options.genresId = [];
+      currentFetch = 'tranding';
+      console.log('topDay', options.trand);
+
+      ress = await fetchTrandingMovie();
+      console.log('topDay', ress);
+      console.log('currentFetch ', currentFetch);
+    }
+async function onClickTopWeekTrands(e) {
+   e.target.classList.toggle('btn_active');
+      options.trand = 'week';
+      console.log('topWeek', options.trand);
+      currentFetch = 'tranding';
+
+      ress = await fetchTrandingMovie();
+      console.log('topWeek', ress);
+      console.log('currentFetch ', currentFetch);
+    }
 // ================== tranding Startpage ==================
 async function onLoadTranding() {
-  ress = await fetchTrandingMovie();
-  const resp = await fetchTrandingMovie();
 
-  options.maxPage = resp.total_pages;
-  galleryArrayMarkup(resp);
-  ratingAddIshidden();
-  markupPages(resp);
-  hideFirstPageBtn();
-  hideLastPageBtn();
-  togglePaginationBtn();
-  removeAllChekedGenres();
-  options.pageNumber += 1;
+  ress = await fetchTrandingMovie()  
+  options.maxPage = ress.total_pages
+    galleryArrayMarkup(ress)
+    markupPages(ress)
+    ratingAddIshidden()
+    hideFirstPageBtn()
+    hideLastPageBtn()
+    togglePaginationBtn()
+    removeAllChekedGenres()
+    modalOpenOnClick()
+    togglePainationAllButtons(ress)
+    localStorage.setItem('MoviesOnPage', JSON.stringify(ress));
 
-  return await fetchTrandingMovie();
+    options.pageNumber += 1
+    console.log(options.allGenresList);
+    return await fetchTrandingMovie()
+
 }
 
 //=========================== разметкa Галереи фильмов ====================
 function galleryArrayMarkup(array) {
-  const galleryMarkup = array.results
-    .map(({ poster_path, original_title, vote_average, release_date, genre_ids }) => {
-      // console.log(largeImageURL)
+
+  teaser(array);
+
+    const galleryMarkup = array.results.map(({poster_path,original_title,vote_average,release_date,genre_ids}) =>
+    {
       return `<li class="gallery-list__item">
 
 
-                <div class="gallery-list__card">
-                    <a class="gallery-list__poster" href="https://image.tmdb.org/t/p/w500/${poster_path}">
+                <a class="gallery-list__card">
+                    <div class="gallery-list__poster" href="https://image.tmdb.org/t/p/w500/${poster_path}">
                         <img src="https://image.tmdb.org/t/p/w500${poster_path}" alt="${original_title}" width = "298" height = "398"/>
-                    </a>
-                </div>
-                <!-- <div class="gallery-list__description"> -->
-
+                    </div>
+                    <div class="gallery-list__description">
                     <h2 class="gallery-list__titel">${original_title}</h2>
                     <div class="gallery-list__statics">
-                        <p class="gallery-list__text">${genre_ids} | <span class="gallery-list__text-aftertext">${new Date(
+
+                        <p class="gallery-list__text">${galleryGenresMarkup(genre_ids)} | <span class="gallery-list__text-aftertext">${new Date(
         release_date,
       ).getFullYear()}</span> </p>
+
                         <span class="gallery-list__rating">${vote_average}</span>
                     </div>
                 </div>
@@ -159,36 +246,28 @@ function ratingAddIshidden() {
   ratings.forEach(rating => rating.classList.add('visually-hidden'));
 }
 
-// ===================== пока не трогаем ==============
-// ================ фетч всехЖанров с АПИ и маркап их ========================
 
-async function genresMarkup() {
-  const r = await fetchGenres();
+//=====================================Запуск модалки===============================================================
 
-  const genres = r.genres
-    .map(({ id, name }) => {
-      return `
-    <button class="genres-btn btn btn-info"  id="${id}">${name}</button>`;
-    })
-    .join('');
-  //   refs.genres.insertAdjacentHTML('beforeend', genres)
-}
+// function modalOpenOnClick() {
+//   const clickedMovieCard = document.querySelectorAll(".gallery-list__item");
+//   clickedMovieCard.forEach(button => button.addEventListener("click", onClick));
 
-// ===================== выбор и удаление жанра со страницы, добавление в массив ======
-function toggleGenres(id) {
-  if (options.genresId.includes(id)) {
-    const genresIdx = options.genresId.indexOf(id);
-    options.genresId.splice(genresIdx, 1);
-    return;
-  }
-  options.genresId.push(id);
-}
+//   const modalCloseBtn = document.querySelector('[data-modal-close]');
+//   modalCloseBtn.addEventListener('click', onClick)
 
-// ==================== удаление всех выбраных жанров ======================
-async function removeAllChekedGenres() {
-  //     const allRenderGenresButton = [...refs.genres.children]
-  //    return allRenderGenresButton.forEach(eachBtn=>eachBtn.classList.remove('genresIsActive'))
-}
+//   function onClick(event) {
+//     event.preventDefault()
+
+//     console.log(event.currentTarget);
+    
+//     const modal = document.querySelector('[data-modal]');
+//     modal.classList.toggle('is-hidden');
+  
+//   }
+// }
+
+// =========================================================================================================
 
 const ratings = document.querySelector('.gallery-list');
 console.log(ratings);

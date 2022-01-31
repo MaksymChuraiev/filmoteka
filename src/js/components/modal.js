@@ -8,36 +8,32 @@
 // function toggleModal() {
 //     refs.modal.classList.toggle('is-hidden');
 // };
-// import itemsTemplate from '../../template/index.hbs';
-// import * as basicLightbox from 'basiclightbox';
+export {modalOpenOnClick}
 
-// const galleryListRef = document.querySelector('.gallery-list');
-// galleryListRef.addEventListener('click', onLargeImageClick);
+function modalOpenOnClick() {
+    const clickedMovieCard = document.querySelectorAll(".gallery-list__item");
+    const modalCloseBtn = document.querySelector('[data-modal-close]');
+  
+    clickedMovieCard.forEach(button => button.addEventListener("click", onClickMovieCard));
+    modalCloseBtn.addEventListener('click', onClickCloseModal)
 
-// function onLargeImageClick(e) {
-//   e.preventDefault();
+    function onClickMovieCard(event) {
+    event.preventDefault()
+    modalCloseBtn.addEventListener('click', onClickCloseModal)
+    console.log(event.currentTarget);
+    
+    const modal = document.querySelector('[data-modal]');
+    modal.classList.toggle('is-hidden');
+  
+    }   
+    function onClickCloseModal(event) {
+    event.preventDefault()
 
-//   const isImgEl = e.target.classList.contains('gallery__image');
-
-//   if (!isImgEl) {
-//     return;
-//   }
-
-//   const instance = basicLightbox.create(itemsTemplate(), {
-//     onClose: () => {
-//       window.removeEventListener('keydown', onCloseLargeImg);
-//     },
-//   });
-
-//   instance.show();
-
-//   window.addEventListener('keydown', onCloseLargeImg);
-
-//   function onCloseLargeImg(event) {
-//     if (event.code !== 'Escape') {
-//       return;
-//     }
-
-//     instance.close();
-//   }
-// }
+    console.log(event.currentTarget);
+    
+    const modal = document.querySelector('[data-modal]');
+        modal.classList.toggle('is-hidden');
+        modalCloseBtn.removeEventListener('click', onClickCloseModal)
+  
+    }
+}
