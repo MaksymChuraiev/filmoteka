@@ -1,6 +1,7 @@
 @import './base/reset';
 @import './components/backdrop';
 @import './components/modal';
+@import './components/loader';
 @import './utils/vars';
 @import './base/container';
 @import './utils/hidden';
@@ -12,5 +13,6 @@
 @import './layout/footer';
 @import './layout/switcher';
 @import './layout/modal-team';
+@import './components/filter-btn';
 
 @import './layout/scroll';

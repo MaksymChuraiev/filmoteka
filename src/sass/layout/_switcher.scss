@@ -1,16 +1,17 @@
 body.light-theme {
   background-color: #fff;
   background-image: linear-gradient(rgba(190, 190, 194, 0.4), rgba(140, 141, 146, 0.4)),
-    url('../images/white-bg4.jpg');
-  background-size: contain;
-  background-repeat: repeat;
+    url('../images/white-bg.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  color: #000;
 }
 
 body.dark-theme {
-  background-color: #000;
-  // background-image: url('../images/dark-bg2.jpg');
-  // background-size: contain;
-  // background-repeat: repeat;
+  background-color: rgba(0, 0, 0, 0.952);
+  // background-image: url('../images/dark-bg.jpg');
+  // background-size: cover;
+  // background-repeat: no-repeat;
 
   // background: rgb(94, 33, 15);
   // background: linear-gradient(
@@ -31,15 +32,31 @@ body.dark-theme {
   //   rgba(61, 21, 9, 1) 18%,
   //   rgba(11, 6, 0, 0.7598389697675946) 71%
   // );
-  color: #fff;
+
+  color: #121212;
+
 }
 
 .modal-container.light-theme {
+
   background-image: linear-gradient(rgba(190, 190, 194, 0.4), rgba(140, 141, 146, 0.4));
 }
 .modal-container.dark-theme {
-  background-image: linear-gradient(rgba(27,27,27, 0.7), rgba(27, 27, 27, 0.7));
+  background-color: #8c8c8c;
+
+  // background-image: linear-gradient(rgba(46, 46, 46, 0.9), rgb(0, 0, 0, 0.9));
 }
+
+.modal-film-card.dark-theme {
+    background-color: #8c8c8c;
+}
+
+// .modal__film-owervier-text.light-theme {
+//   color: #000;
+// }
+// .modal__film-owervier-text.dark-theme {
+//   color: rgb(255, 255, 255);
+// }
 
 .page_item.dark-theme {
   color: #000;
@@ -48,13 +65,16 @@ body.dark-theme {
 
 .toolbar {
   position: absolute;
-  left: 0px;
+  // left: 0px;
+  left: 20px;
   right: 20px;
   top: 130px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  // justify-content: flex-end;
 
   @media screen and (min-width: 768px) {
+    left: 79px;
     right: 77px;
     top: 140px;
   }

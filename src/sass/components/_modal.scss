@@ -7,14 +7,11 @@
 
   background-color: white;
   width: 280px;
-
   transform: translate(-50%, -50%);
-  //   min-height: 609px;
+
   background-color: white;
   box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.12), 0px 1px 1px rgba(0, 0, 0, 0.14),
     0px 2px 1px rgba(0, 0, 0, 0.2);
-
-  // overflow-y: scroll;
 
   @media screen and (min-width: 768px) and (max-width: 1024px) {
     top: 65%;
@@ -106,6 +103,7 @@ tr {
   margin-bottom: 10px;
 }
 .modal__param-titel {
+  color: #121212;
   width: 105px;
   @media screen and (min-width: 1024px) {
     width: 150px;
@@ -130,10 +128,6 @@ tr {
     &-value {
       display: flex;
       color: black;
-    }
-    &-titel {
-      //   margin-right: 35px;
-      //   display: block;
     }
   }
   &__film-votes {
@@ -221,13 +215,25 @@ tr {
     background-color: #ff6b01;
     border: 1px solid #ff6b01;
   }
+
   &.queue {
-    color: black;
-    background-color: white;
-    border: 1px solid black;
+    color: white;
+    background-color: #ff6b01;
+    border: 1px solid #ff6b01;
+  }
+
+  &.cheked {
+    color: #000000;
+    background-color: #f7f7f7;
+    border: 1px solid #000000;
   }
 
   &:not(:last-child) {
     margin-right: 20px;
   }
+}
+
+.modal_btn-siActive {
+  background-color: #f7f7f7;
+  color: #000000;
 }
