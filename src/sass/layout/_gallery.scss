@@ -58,6 +58,11 @@
     border-radius: 5px;
     overflow: hidden;
   }
+  &__img {
+    display: block;
+    width: 100%;
+    height: 398px;
+  }
   &__description {
     padding-top: 10px;
   }
@@ -94,5 +99,7 @@
 
 .gallery__text-wrapper {
   margin: 0 auto;
-  padding: 150px;
+  padding-left: 50px;
+  padding-right: 50px;
+  padding-top: 100px;
 }
