@@ -23,6 +23,7 @@ const refs = {
     pages: document.querySelector('.pages'),
     paginationList: document.querySelector('.pagination'), 
     endCollectionText: document.querySelector('.end-collection-text'),
+    
 }
 console.log(refs);
 console.log(options);
@@ -31,7 +32,7 @@ console.log(refs.endCollectionText);
 function markupPages(array) {
   const pagesBtnMarkup = `
       <li class="page_item"><a href="#" class="page_link pagination_btn" data-page=${array.page - 1}>${array.page - 1}</a></li>
-              <li class="page_item disabled"><a href="#" class="page_link pagination_btn btn_active" data-page=${array.page}>${array.page}</a></li>
+              <li class="page_item disabled"><a href="#" class="page_link pagination_btn btn_active btn_disabled" data-page=${array.page}>${array.page}</a></li>
               <li class="page_item"><a href="#" class="page_link pagination_btn" data-page=${array.page + 1}>${array.page + 1}</a>
               </li>`
  
@@ -43,19 +44,19 @@ function markupPages(array) {
 async function togglePainationAllButtons(array) {
   refs.paginationList.classList.remove('visually-hidden')
   if (array.total_pages <= 1) {
-    refs.paginationList.classList.add('visually-hidden')
+    // refs.paginationList.classList.add('visually-hidden')
     // console.log(array.results.length)
     console.log(refs.paginationList)
   }
 }
 
-function addTestPaginationListeners() {
+async function addTestPaginationListeners() {
   refs.prevPage.addEventListener('click', onClickPrevPageBtn)
   refs.nextPage.addEventListener('click', onClickNextPageBtn)
   refs.morePage.addEventListener('click', onClickMorePageBtn)
   refs.lessPage.addEventListener('click', onClickLessPageBtn)
   refs.pages.addEventListener('click', onClickNumberPageBtn)
-  
+ 
 }
 
 function togglePaginationBtn() {
@@ -63,6 +64,7 @@ function togglePaginationBtn() {
     refs.lessPage.parentNode.classList.remove('btn_disabled')
     refs.nextPage.parentNode.classList.remove('btn_disabled')
     refs.morePage.parentNode.classList.remove('btn_disabled')
+    refs.endCollectionText.classList.add('visually-hidden');
 
   
   if (options.pageNumber <= 1) {
@@ -72,6 +74,7 @@ function togglePaginationBtn() {
   if (options.pageNumber >= options.maxPage) {
     refs.nextPage.parentNode.classList.add('btn_disabled')
     refs.morePage.parentNode.classList.add('btn_disabled')
+    refs.endCollectionText.classList.remove('visually-hidden');
   }
 }
 
@@ -86,7 +89,7 @@ function hideLastPageBtn() {
   if (refs.pages.lastElementChild.firstElementChild.dataset.page-1 >= options.maxPage) {
     refs.pages.lastElementChild.classList.add('visually-hidden');
     // ===================================== скрываю текст конец коллекции
-      Notify.failure('End of the film collection');
+      refs.endCollectionText.classList.remove('visually-hidden');
   }
 }
 // function hideEndCollectionText (){
@@ -98,6 +101,7 @@ function hideLastPageBtn() {
 
 // ============ descriptionButtonListener ============
 async function onClickNumberPageBtn(e) {
+
   if (e.target.nodeName === 'UL' || e.target.nodeName === 'LI') {
     return
   }
@@ -129,6 +133,11 @@ async function onClickNumberPageBtn(e) {
     console.log('genres',response)
   }  
 
+  if (currentFetch === 'error') {
+    console.log('eror my eror')
+    return 
+  }
+  options.pageNumberTest = options.pageNumber
   localStorage.setItem('MoviesOnPage', JSON.stringify(response));
   galleryArrayMarkup(response)
   markupPages(response)
@@ -137,7 +146,8 @@ async function onClickNumberPageBtn(e) {
   hideFirstPageBtn()
   hideLastPageBtn()
   togglePaginationBtn()
-  
+  scrollUp(e)
+  console.log(e.target)
   
   
 }
@@ -152,6 +162,7 @@ async function onClickPrevPageBtn(e) {
   
   if (options.pageNumber > 1) {
     options.pageNumber -= 1;
+    
     let response
   if (currentFetch === 'tranding') {
     response = await fetchTrandingMovie()
@@ -169,7 +180,7 @@ async function onClickPrevPageBtn(e) {
     response = await discoverYear()
     console.log('genres',response)
     }  
-    
+    options.pageNumberTest = options.pageNumber
     localStorage.setItem('MoviesOnPage', JSON.stringify(response));
     galleryArrayMarkup(response)
     markupPages(response)
@@ -177,8 +188,9 @@ async function onClickPrevPageBtn(e) {
     ratingAddIshidden()
     hideFirstPageBtn()
     hideLastPageBtn()
-    togglePaginationBtn()    
-     
+    togglePaginationBtn()  
+    scrollUp(e)
+
   }
 }
 async function onClickNextPageBtn(e) {
@@ -187,6 +199,7 @@ async function onClickNextPageBtn(e) {
   e.preventDefault();
   console.log('next')
   console.log(e.target)
+  console.log(e.currentTarget)
   console.log(options.maxPage,'maxPage')
   console.log(options.pageNumber,'pageNumber')
   
@@ -211,7 +224,7 @@ let response
     response = await discoverYear()
     console.log('genres',response)
       }
-      
+      options.pageNumberTest = options.pageNumber
       localStorage.setItem('MoviesOnPage', JSON.stringify(response));
       galleryArrayMarkup(response)
       markupPages(response)
@@ -221,7 +234,8 @@ let response
       hideFirstPageBtn()
       hideLastPageBtn()
       togglePaginationBtn()
-      
+      scrollUp(e)
+
     }
 }
 console.log('options.pageNumber:',options.pageNumber)
@@ -240,6 +254,7 @@ async function onClickMorePageBtn(e) {
       options.pageNumber = options.maxPage
     } else {
       options.pageNumber += 3;
+      options.pageNumberTest = options.pageNumber
     }
 let response
   if (currentFetch === 'tranding') {
@@ -267,7 +282,8 @@ let response
     hideFirstPageBtn()
     hideLastPageBtn()
     togglePaginationBtn()
-    
+    scrollUp(e)
+
   }
 }
 
@@ -280,8 +296,10 @@ async function onClickLessPageBtn(e) {
   if (options.pageNumber <= options.maxPage) {
     if (options.pageNumber <= 3) {
       options.pageNumber = 1
+      options.pageNumberTest = options.pageNumber
     } else {
       options.pageNumber -= 3;
+      options.pageNumberTest = options.pageNumber
     }
 let response
   if (currentFetch === 'tranding') {
@@ -309,6 +327,12 @@ let response
     hideFirstPageBtn()
     hideLastPageBtn()
     togglePaginationBtn()
-    
+    scrollUp(e)
+
   }
 }
+
+function scrollUp(e) {
+    e.preventDefault();
+    window.scroll(0, 0)
+  }

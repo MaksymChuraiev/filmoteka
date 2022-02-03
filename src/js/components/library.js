@@ -9,11 +9,14 @@ const refs = {
   genres: document.querySelector('.genres'),
   paginationList: document.querySelector('.pagination'),
   topTrands: document.querySelector('.top-trands'),
+  endCollectionText: document.querySelector('.end-collection-text'),
 
   watched: document.querySelector('.js-button-watched'),
   queue: document.querySelector('.js-button-queue'),
 
   libraryLink: document.querySelector('.js-library'),
+
+  filterEl: document.querySelector('.filter'),
 };
 
 refs.libraryLink.addEventListener('click', onLibraryLinkClick);
@@ -21,6 +24,10 @@ function onLibraryLinkClick(e) {
   const libraryIsActiv = e.currentTarget;
   if (libraryIsActiv) {
     hideErrorText();
+
+    refs.endCollectionText.classList.add('visually-hidden');
+    refs.filterEl.classList.add('hidden')
+    
   }
 }
 let data = {
