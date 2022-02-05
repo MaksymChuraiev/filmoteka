@@ -5,12 +5,14 @@ export const options = {
   query: '',
   pageNumberTest: 1,
   pageNumber: 1,
+  pageNumberSlider: 1,
   pageItemCount: 20,
   allGenresList: [],
   genresId: [],
   yearId: [],
   maxPage: 0,
   trand: 'day',
+  listofFilmforSlider:[]
 };
 
 async function fetchPhoto() {
@@ -52,6 +54,33 @@ async function fetchTrandingMovie() {
 }
 
 
+async function fetchTrandingMovieForSlider() {
+  try {
+    for (let pageNum = 0; pageNum <= 5, pageNum += 1;) {
+      if (options.pageNumberSlider >= 5) {
+        options.pageNumberSlider = 1
+        return
+      }
+      options.pageNumberSlider +=1
+      const { data } = await axios.get(
+        `https://api.themoviedb.org/3/trending/movie/${options.trand}?api_key=6dae1a863e182d2e5c972909bcd1e575&&page=${options.pageNumberSlider}`,
+      );
+      
+      options.listofFilmforSlider = [...options.listofFilmforSlider, ...data.results]
+      localStorage.setItem('listofFilmforSliderLS', JSON.stringify(options.listofFilmforSlider))
+      
+      // console.log('pageNum',pageNum)
+      // console.log('options.pageNumber',options.pageNumber)
+      // console.log('options.listofFilmforSlider',options.listofFilmforSlider)
+       
+    }
+   return data;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+
 // ===================old discover year =================
 async function discoverGenres() {
   try {
@@ -76,7 +105,7 @@ async function fetchTeaser(idMovie) {
   }
 }
 
-export { fetchPhoto, fetchGenres, discoverGenres, fetchTrandingMovie, fetchTeaser,fetchPhotoTest};
+export { fetchPhoto, fetchGenres, discoverGenres, fetchTrandingMovie,fetchTrandingMovieForSlider, fetchTeaser,fetchPhotoTest};
 
 
 async function fetchPhotoTest() {

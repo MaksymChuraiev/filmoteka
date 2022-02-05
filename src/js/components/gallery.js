@@ -1,4 +1,4 @@
-import { fetchPhoto, fetchGenres, discoverGenres, fetchTrandingMovie,fetchPhotoTest } from './fetchApi';
+import { fetchPhoto, fetchGenres, discoverGenres, fetchTrandingMovie,fetchTrandingMovieForSlider,fetchPhotoTest } from './fetchApi';
 
 import {
   markupPages,
@@ -33,8 +33,11 @@ import teaser from './teaser';
 import { showErrorText, hideErrorText } from './errorText';
 import { hidePagination, showPagination } from './hidePagination';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
-// import { hideEndCollectionText } from './pagination';
+
+import { sliderMarkup,onLoadMainPageShowSlider} from './slider';
 import {showFetchLoader,hideFetchLoader} from './fetchLoader'
+import folder from '../../images/placeholder.bmp'
+import { addPageInLS, readPageInLs } from './fn_addLSPageKey'
 
 export {
   currentFetch,
@@ -46,6 +49,7 @@ export {
   toggleGenres,
   removeAllChekedGenres,
   ratingAddIshidden,
+  posterFolder
 };
 const throttle = require('lodash.throttle');
 
@@ -66,11 +70,15 @@ const refs = {
   modal: document.querySelector('[data-modal]'),
   textError: document.querySelector('.js-header__text-error'),
   endCollectionText: document.querySelector('.end-collection-text'),
+  slider: document.querySelector('.slider__section'),
 };
 let currentFetch = 'tranding';
 let currentFetchTest = 'tranding';
 // let previousFetch = JSON.parse(localStorage.getItem('MoviesOnPage'));
+
 genresMarkup();
+
+
 const formInput = refs.form.elements.query;
 
 refs.form.addEventListener('submit', checkFetchLink);
@@ -98,6 +106,9 @@ if (!localStorage.getItem('queue')) {
 onLoadTranding();
 
 addTestPaginationListeners();
+onLoadMainPageShowSlider()
+
+
 
 async function checkFetchLink(e) {
   
@@ -187,6 +198,7 @@ async function checkFetchLink(e) {
     togglePainationAllButtons(ress);
     modalOpenOnClick();
     await hideFetchLoader()
+    
   } catch (e) {
     console.log(e);
   }
@@ -322,13 +334,13 @@ async function onLoadTranding() {
   hideLastPageBtn();
   togglePaginationBtn();
   removeAllChekedGenres();
-
   togglePainationAllButtons(ress);
+  
   if (ress.results.length !== 0) {
     localStorage.setItem('MoviesOnPage', JSON.stringify(ress));
   }
 
-  options.pageNumber += 1;
+  // options.pageNumber += 1;
   console.log(options.allGenresList);
   await hideFetchLoader()
   return await fetchTrandingMovie();
@@ -343,18 +355,18 @@ function galleryArrayMarkup(array) {
 
                 <a class="gallery-list__card">
                     <div class="gallery-list__poster">
-                        <img class="gallery-list__img" src="${posterFolder(poster_path)}" alt="${original_title}" width = "396" />
+                        <img class="gallery-list__img" src="${poster_path?'https://image.tmdb.org/t/p/w500'+poster_path:folder}" alt="${original_title}"  loading="lazy" />
                     </div>
                     </div>
                     <div class="gallery-list__description">
                     <h2 class="gallery-list__titel">${original_title}</h2>
                     <div class="gallery-list__statics">
 
-                        <p class="gallery-list__text">${galleryGenresMarkup(
-                          genre_ids,
-                        )} | <span class="gallery-list__text-aftertext">${new Date(
+                        <p class="gallery-list__text">${galleryGenresMarkup(genre_ids)?galleryGenresMarkup(genre_ids):'no information'} | <span class="gallery-list__text-aftertext">${new Date(
         release_date,
-      ).getFullYear()}</span> </p>
+      ).getFullYear()?new Date(
+        release_date,
+      ).getFullYear():'no information'}</span> </p>
 
                         <span class="gallery-list__rating">${vote_average}</span>
                     </div>
